@@ -1,26 +1,37 @@
 const express = require('express');
-const { engine } = require ('express-handlebars');
+const { engine } = require('express-handlebars');
+const bodyParser = require('body-parser');
 
 const checkCatIdMiddleware = require('./middlewares/middleware');
 const loggerMiddleware = require('./middlewares/logger.js');
+const cats = require('./cats');
 
 //make an instanse of a server
 const app = express();
 
-const cats = [];
+// const cats = [];
 
 app.use('/static', express.static('public')); //Here we need  to put /static/cats.html in the Url path, if the needed file is cats.html. 
 // If we need index.html - dont need to specify file name - it do it automaticaly
 
 // app.use(express.static('public')); // This is more complecated - use with attention on routing (2h 20 min, lecture 5)
 app.use(loggerMiddleware);
-app.engine('hbs', engine());
+
+app.use(bodyParser.urlencoded({ extended: false }))
+
+app.engine('hbs', engine({
+    extname: 'hbs'
+}));
 app.set('view engine', 'hbs');
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     let name = "Pesho";
-    res.render('homeHandlebars', {layout: false, name});
+    res.render('homeHandlebars', { name });
 });
+
+app.get('/cats', (req, res) => {
+    res.render('cats', { cats: cats.getAll() });
+})
 
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/views/home.html');
@@ -42,7 +53,7 @@ app.get('/', (req, res)=>{
 
 // Middleware
 // app.get('/cats/:catId?', checkCatIdMiddleware, (req, res)=>{
-   
+
 //     res.send(`You are looking at profile of ${req.params.catId}`);
 // });
 
@@ -96,9 +107,12 @@ app.get('/download', (req, res) => { //directly download to the user`s computer
 });
 
 app.post("/cats", (req, res) => {
-    console.log('create cat');
-    res.status(201); //set the status code to be 201
-    res.send('cat created'); //'"send()" includes end(), "status()" doesn`t
+    let catName = req.body.cat;
+    cats.add(catName);
+
+    res.redirect('/cats');
+    // res.status(201); //set the status code to be 201
+    // res.send('cat created'); //'"send()" includes end(), "status()" doesn`t
     // all commands could be chained: res.status(201).send('cat created'); more info - "routh paths"
 });
 
