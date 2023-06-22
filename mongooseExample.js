@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+
 const Person = require('./modules/Person')
 const uri = 'mongodb://localhost:27017/mongotest';
 

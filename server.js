@@ -1,10 +1,13 @@
 const express = require('express');
 const { engine } = require('express-handlebars');
 const bodyParser = require('body-parser');
+const createCat = require('./services/createCat');
+require('./config/db');
 
 const checkCatIdMiddleware = require('./middlewares/middleware');
 const loggerMiddleware = require('./middlewares/logger.js');
 const cats = require('./cats');
+const Cat = require('./modules/Cat')
 
 //make an instanse of a server
 const app = express();
@@ -24,9 +27,26 @@ app.engine('hbs', engine({
 }));
 app.set('view engine', 'hbs');
 
+// app.get('/', (req, res) => {
+ 
+//     let name = "Pesho";
+//     res.render('homeHandlebars', { name });
+// })
+
+// app.get('/', (req, res) => {
+//     createCat("Poly", "Petya")
+//     let name = "Pesho";
+//     res.render('homeHandlebars', { name });
+// })
+
 app.get('/', (req, res) => {
+
+Cat.find({name:"Poly"}).populate('owner').then(cat => {
+    console.log(cat)
     let name = "Pesho";
     res.render('homeHandlebars', { name });
+})
+
 });
 
 app.get('/cats', (req, res) => {
@@ -120,5 +140,7 @@ app.post("/cats", (req, res) => {
 // console.log('handle all requests);
 // res.end();
 // })
+
+//
 
 app.listen(5000, () => console.log("Server is listening on port 5000"));
